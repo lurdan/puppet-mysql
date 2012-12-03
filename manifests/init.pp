@@ -16,27 +16,37 @@ class mysql (
   $ssl = false
 ) {
 
-  case $::operatingsystem {
-    /(?i-mx:debian|ubuntu)/: {
+  case $::osfamily {
+    'Debian': {
       package {
         'mysql-common':
           ensure => $version;
         'libmysqlclient':
           name => $::lsbdistcodename ? {
             'squeeze' => 'libmysqlclient16',
+            'wheezy' => 'libmysqlclient18',
             default => 'libmysqlclient18',
           };
       }
+      file { "$confdir/my.cnf":
+        ensure => present,
+        require => Package['mysql-common'];
+      }
     }
-    /(?i-mx:redhat|centos)/: {
+    'Redhat': {
       package { 'mysql-common':
         name => 'mysql-libs',
         ensure => $version,
       }
-      file { '/etc/my.cnf':
-        ensure => link,
-        target => "$confdir/my.cnf",
-        require => File["$confdir/my.cnf"],
+      file {
+        '/etc/my.cnf':
+          ensure => link,
+          target => "$confdir/my.cnf",
+          require => File["$confdir/my.cnf"];
+        "$confdir/my.cnf":
+          ensure => present,
+          content => "!includedir ${confdir}/conf.d/",
+          require => Package['mysql-common'];
       }
     }
   }
@@ -45,9 +55,6 @@ class mysql (
     "$confdir":
       require => Package['mysql-common'],
       ensure => directory;
-    "$confdir/my.cnf":
-      ensure => present,
-      require => Package['mysql-common'];
     "$confdir/conf.d":
       require => Package['mysql-server'],
       ensure => directory;

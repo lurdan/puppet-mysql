@@ -1,6 +1,6 @@
 # Class: mysql::server
 #
-# mysql サーバの設定を管理するクラス。
+# manage mysql server
 #
 # Parameters:
 #
