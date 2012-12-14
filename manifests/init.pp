@@ -33,7 +33,7 @@ class mysql (
         require => Package['mysql-common'];
       }
     }
-    'Redhat': {
+    'RedHat': {
       package { 'mysql-common':
         name => 'mysql-libs',
         ensure => $version,
