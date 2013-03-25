@@ -10,7 +10,9 @@
 #
 # Sample Usage:
 #
-class mysql::server ( $version = 'present', $active = true ) {
+class mysql::server ( $version = 'latest', $active = true ) {
+
+  $plugin_dir = "/usr/${::fc_libdir}/mysql/plugin"
 
   package { 'mysql-server':
     ensure => $version,
@@ -21,9 +23,9 @@ class mysql::server ( $version = 'present', $active = true ) {
   }
 
   service { 'mysql-server':
-    name => $::operatingsystem ? {
-      /(?i-mx:debian|ubuntu)/ => 'mysql',
-      /(?i-mx:redhat|centos)/ => 'mysqld',
+    name => $::osfamily ? {
+      'Debian' => 'mysql',
+      'RedHat' => 'mysqld',
     },
     ensure => $active ? {
       true => running,
@@ -39,7 +41,12 @@ class mysql::server ( $version = 'present', $active = true ) {
 
 
 
-
+define mysql::server::plugin ( $source ) {
+  file { "${mysql::server::plugin_dir}/${name}.so":
+    source => $source,
+    notify => Service['mysql-server'],
+  }
+}
 
 
 

@@ -12,12 +12,13 @@
 #
 # Sample Usage:
 #
-class mysql::client ( $version = 'present' ) {
+class mysql::client ( $version = 'latest' ) {
   package { 'mysql-client':
-    name => $::operatingsystem ? {
-      /(?i-mx:debian|ubuntu)/ => 'mysql-client',
-      /(?i-mx:redhat|centos)/ => 'mysql',
+    name => $::osfamily ? {
+      'Debian' => 'mysql-client',
+      'RedHat' => 'mysql',
     },
     ensure => $version,
   }
 }
+
